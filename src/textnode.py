@@ -1,4 +1,5 @@
 from enum import Enum 
+from htmlnode import LeafNode
 
 '''
     Enum for the different types of inline text nodes
@@ -32,3 +33,23 @@ class TextNode:
     
     def __repr__(self):
         return f"TextNode({self.text}, {self.text_type.value}, {self.url})"
+    
+    '''
+        Converts a TextNode into a corresponding HTMLNode (LeafNode)
+    '''
+    def text_node_to_html_node(self):
+        match self.text_type:
+            case TextType.PLAIN_TEXT:
+                return LeafNode(None, self.text)
+            case TextType.BOLD_TEXT:
+                return LeafNode("b", self.text)
+            case TextType.ITALIC_TEXT:
+                return LeafNode("i", self.text)
+            case TextType.CODE:
+                return LeafNode("code", self.text)
+            case TextType.LINK:
+                return LeafNode("a", self.text, {"href": self.url})
+            case TextType.IMAGE:
+                return LeafNode("img", "", {"src": self.url, "alt": self.text})
+            case _:
+                raise ValueError("ERROR: Invalid TextType provided to TextNode")

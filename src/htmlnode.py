@@ -9,10 +9,10 @@ class HTMLNode:
         props (dict[str, str] | None): Dictionary of HTML properties/attributes. Defaults to None.
     '''
     def __init__(self, tag: str | None = None, value: str | None = None, children: list["HTMLNode"] | None = None, props: dict[str, str] | None = None):
-        self.tag = tag if tag is not None else ""
-        self.value = value if value is not None else ""
-        self.children = children if children is not None else []
-        self.props = props if props is not None else {}
+        self.tag = tag 
+        self.value = value 
+        self.children = children 
+        self.props = props
     
     def to_html(self):
         raise NotImplementedError("to_html method not implemented yet")
@@ -38,11 +38,11 @@ class LeafNode(HTMLNode):
     '''
         LeafNode is a subclass of HTMLNode, representing HTML nodes with no children.
         Args:
-            tag (str): REQUIRED - The HTML tag of the node
+            tag (str | None): REQUIRED, but may be None - The HTML tag of the node
             value (str): REQUIRED - The value of the HTML tag 
             props (dict[str, str] | None): OPTIONAL - Dictionary of HTML properties/attributes. Defaults to None.
     '''
-    def __init__(self, tag: str, value: str, props: dict[str, str] | None = None):
+    def __init__(self, tag: str | None, value: str, props: dict[str, str] | None = None):
         super().__init__(tag=tag, value=value, children=None, props=props)
     
     def to_html(self):

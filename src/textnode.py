@@ -12,6 +12,13 @@ class TextType(Enum):
     IMAGE = 6
 
 class TextNode:
+    '''
+    TextNode Constructor, a node for the different types of inline text (bold, italic, link, image, code, plain text)
+    Args:
+        text (str): REQUIRED - The text content of the node
+        text_type (TextType): REQUIRED - The type of text node (from TextType enum)
+        url (str): OPTIONAL - The URL for link or image types. Defaults to an empty string.
+    '''
     def __init__(self, text: str, text_type: TextType, url: str = ""):
         self.text = text
         self.text_type = text_type

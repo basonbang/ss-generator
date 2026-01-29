@@ -21,15 +21,34 @@ class HTMLNode:
     Returns a formatted string representing the HTML node's attributes
     '''
     def props_to_html(self): 
-        if self.props is None or len(self.props) == 0:
+        if self.props is None:
             return ""
         
         attr_string = ""
 
-        for key in self.props.keys():
-            attr_string += f' {key}="{self.props[key]}"'
+        for prop in self.props:
+            attr_string += f' {prop}="{self.props[prop]}"'
     
         return attr_string
     
     def __repr__(self):
         return f"HTMLNode(tag={self.tag}, value={self.value}, children={self.children}, props={self.props})"
+
+'''
+    LeafNode is a subclass of HTMLNode, representing HTML nodes with no children.
+'''
+class LeafNode(HTMLNode):
+    def __init__(self, tag: str, value: str, props: dict[str, str] | None = None):
+        super().__init__(tag=tag, value=value, children=None, props=props)
+    
+    def to_html(self):
+        if not self.value:
+            raise ValueError("All LeafNode objects must have a value")
+        
+        if not self.tag:
+            return self.value
+        
+        return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
+    
+    def __repr__(self):
+        return f"LeafNode(tag={self.tag}, value={self.value}, props={self.props})"

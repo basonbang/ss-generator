@@ -9,9 +9,9 @@ class TestConvertText(unittest.TestCase):
         new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
 
         expected_nodes = [
-            TextNode("This is text with a", TextType.PLAIN_TEXT),
+            TextNode("This is text with a ", TextType.PLAIN_TEXT),
             TextNode("code block", TextType.CODE),
-            TextNode("word", TextType.PLAIN_TEXT)
+            TextNode(" word", TextType.PLAIN_TEXT)
         ]
 
         self.assertEqual(new_nodes, expected_nodes)
@@ -32,7 +32,7 @@ class TestConvertText(unittest.TestCase):
 
         expected_nodes = [
             TextNode("This is bold text", TextType.BOLD_TEXT),
-            TextNode("and normal text", TextType.PLAIN_TEXT)
+            TextNode(" and normal text", TextType.PLAIN_TEXT)
         ]
 
         self.assertEqual(new_nodes, expected_nodes)

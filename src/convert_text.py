@@ -34,60 +34,27 @@ def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: 
             new_nodes.append(old_node)
             continue 
 
-        split_text = old_node.text.split() 
-        text_around_delimiter = []
-        plain_text = []
-        scanning_for_close_delimiter = False
-
-        for word in split_text:
-            if delimiter in word:
-                # If the delimiter appears twice in the same word
-                if word.count(delimiter) == 2:
-                    text_without_delimiter = word.split(delimiter)
-                    node = TextNode(text_without_delimiter[1],text_type)
-                    new_nodes.append(node)
-                    continue
-                
-                # If we come across the opening delimiter
-                if scanning_for_close_delimiter == False:
-                    scanning_for_close_delimiter = True
-                    text_around_delimiter.append(word.split(delimiter)[1])
-
-                    # Create TextNode for any plain text before delimiter
-                    if plain_text:
-                        plain_text_str = " ".join(plain_text)
-                        plain_text_node = TextNode(plain_text_str, TextType.PLAIN_TEXT)
-                        new_nodes.append(plain_text_node)
-                        plain_text = []
-                    continue
-
-                # If we come across the closing delimiter
-                elif scanning_for_close_delimiter == True:
-                    text_around_delimiter.append(word.split(delimiter)[0])
-                    delimiter_text = " ".join(text_around_delimiter)
-                    node = TextNode(delimiter_text, text_type)
-                    new_nodes.append(node)
-                    scanning_for_close_delimiter = False
-                    text_around_delimiter = []
-                    continue
-                    
-            # Non-delimiter text, either part of plain text or in between delimiters
-            if scanning_for_close_delimiter == True:
-                text_around_delimiter.append(word)
-                continue 
-            else:
-                plain_text.append(word)
-
-        # Closing delimiter was not found in the text
-        if text_around_delimiter:
-            raise Exception(f"Unmatched delimiter '{delimiter}' found in text: '{split_text}'")
+        split_text = old_node.text.split(delimiter)
+        split_nodes = []
         
-        # Create TextNode for any remaining plain text after processing
-        if plain_text:
-            plain_text_str = " ".join(plain_text)
-            plain_text_node = TextNode(plain_text_str, TextType.PLAIN_TEXT)
-            new_nodes.append(plain_text_node)
-            plain_text = []
+        # Invalid Markdown if even number of elements in the split text
+        # No elements = no delimiters found, 2, 4, 6.. = unmatched delimiters
+        if len(split_text) % 2 == 0:
+            raise Exception(f"Unmatched delimiter '{delimiter}' found in text: '{old_node.text}'")
+     
+        for i, segment in enumerate(split_text):
+            # Some segments may be empty strings due to consecutive delimiters (e.g., "**bold**")
+            if segment == "":
+                continue
+
+            if i % 2 == 0:
+                # Plain text
+                split_nodes.append(TextNode(segment, TextType.PLAIN_TEXT))
+            else:
+                # Delimited text
+                split_nodes.append(TextNode(segment, text_type))
+
+        new_nodes.extend(split_nodes)
 
     return new_nodes
         

@@ -1,4 +1,5 @@
 from textnode import TextNode, TextType 
+import re
 
 '''
     Creates TextNode objects from raw Markdown strings by splitting on a given delimiter.
@@ -58,6 +59,31 @@ def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: 
 
     return new_nodes
         
+'''
+    Takes raw Markdown text and returns a list of tuples representing images found in the text.
+    Args:
+        text (str)
+            REQUIRED - Raw Markdown text to extract images from
+    Returns:
+        list[tuple[str, str]]
+            List of tuples representing images found in the text (alt_text, url)
+'''
+def extract_markdown_images(text):
+    image_pattern = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"
+    return re.findall(image_pattern, text)
+
+'''
+    Takes raw Markdown text and returns a list of tuples representing links found in the text.
+    Args:
+        text (str)
+            REQUIRED - Raw Markdown text to extract links from
+    Returns:
+        list[tuple[str, str]]
+            List of tuples representing links found in the text (anchor_text, url)
+'''
+def extract_markdown_links(text):
+    link_pattern = r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)"
+    return re.findall(link_pattern, text)
 
 
 

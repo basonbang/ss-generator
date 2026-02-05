@@ -1,7 +1,7 @@
 import unittest 
 
 from textnode import TextNode, TextType 
-from convert_text import split_nodes_delimiter, extract_markdown_images, extract_markdown_links
+from convert_text import *
 
 class TestConvertText(unittest.TestCase):
     def test_split_nodes_delimiter_simple(self):
@@ -53,6 +53,64 @@ class TestConvertText(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             split_nodes_delimiter([node], "**", TextType.BOLD_TEXT)
         self.assertIn("Unmatched delimiter '**' found in text", str(context.exception))
+
+    def test_split_images(self):
+        node = TextNode(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+            TextType.PLAIN_TEXT,
+        )
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text with an ", TextType.PLAIN_TEXT),
+                TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" and another ", TextType.PLAIN_TEXT),
+                TextNode(
+                    "second image", TextType.IMAGE, "https://i.imgur.com/3elNhQu.png"
+                ),
+            ],
+            new_nodes
+        )
+    
+    def test_split_links(self):
+        node = TextNode(
+            "This is text with a link [to boot dev](https://www.boot.dev) and another [to youtube](https://www.youtube.com/@bootdotdev)",
+            TextType.PLAIN_TEXT,
+        )
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text with a link ", TextType.PLAIN_TEXT),
+                TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+                TextNode(" and another ", TextType.PLAIN_TEXT),
+                TextNode("to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"),
+            ],
+            new_nodes
+        )
+    
+    def test_no_split_links_or_images(self):
+        node = TextNode(
+            "This is text with no links or images",
+            TextType.PLAIN_TEXT
+        )
+        new_image_nodes = split_nodes_image([node])
+        new_link_nodes = split_nodes_link([node])
+
+        expected_nodes = [
+            TextNode("This is text with no links or images", TextType.PLAIN_TEXT)
+        ]    
+
+        self.assertListEqual(expected_nodes, new_image_nodes)
+        self.assertListEqual(expected_nodes, new_link_nodes)
+    
+    def test_textnode_with_empty_text(self):
+        node = TextNode("", TextType.PLAIN_TEXT)
+        new_image_nodes = split_nodes_image([node])
+        new_link_nodes = split_nodes_link([node])
+
+        self.assertEqual([node], new_image_nodes)
+        self.assertEqual([node], new_link_nodes)
+
 
 class TestExtractMarkdownImagesAndLinks(unittest.TestCase):
     def test_extract_markdown_images(self):

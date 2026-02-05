@@ -58,6 +58,101 @@ def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: 
         new_nodes.extend(split_nodes)
 
     return new_nodes
+
+'''
+    Creates TextNode objects from raw Markdown strings by extracting images.
+    Args:
+        old_nodes (list[TextNode])
+            REQUIRED - List of TextNode objects to extract images from (Raw Markdown)
+    Returns:
+        new_nodes (list[TextNode])
+            List of TextNode objects created after extracting images from old nodes
+'''
+def split_nodes_image(old_nodes: list[TextNode]):
+    new_nodes = []
+
+    for old_node in old_nodes:
+        
+        if old_node.text_type != TextType.PLAIN_TEXT:
+            new_nodes.append(old_node)
+            continue
+
+        text = old_node.text 
+        extracted_images = extract_markdown_images(text)
+
+        if not extracted_images:
+            new_nodes.append(old_node) 
+            continue
+        
+        # For each image found, create new TextNode objects
+        for alt_text, url in extracted_images:
+            # construct delimiter to use for splitting original text 
+            delimiter = f"![{alt_text}]({url})"
+
+            split_text = text.split(delimiter, maxsplit=1)
+
+            # split has has at most 2 elements
+            if (len(split_text) == 2):
+                plain_text = split_text[0]
+                if plain_text != "":
+                    new_nodes.append(TextNode(plain_text, TextType.PLAIN_TEXT))
+                text = split_text[1] 
+            else:
+                raise ValueError("Invalid markdown, image section not closed.")
+
+            new_nodes.append(TextNode(alt_text, TextType.IMAGE, url))
+        
+        # Process any remaining text after last image
+        if text != "":
+            new_nodes.append(TextNode(text, TextType.PLAIN_TEXT))
+
+    return new_nodes
+
+'''
+    Creates TextNode objects from raw Markdown strings by extracting links.
+    Args:
+        old_nodes (list[TextNode])
+            REQUIRED - List of TextNode objects to extract links from (Raw Markdown)
+    Returns:
+        new_nodes (list[TextNode])
+            List of TextNode objects created after extracting links from old nodes
+'''
+def split_nodes_link(old_nodes: list[TextNode]):
+    new_nodes = []
+
+    for old_node in old_nodes:
+        
+        if old_node.text_type != TextType.PLAIN_TEXT:
+            new_nodes.append(old_node)
+            continue
+
+        text = old_node.text 
+        extracted_links = extract_markdown_links(text)
+
+        if not extracted_links:
+            new_nodes.append(old_node)
+            continue
+        
+        # For each image found, create new TextNode objects
+        for alt_text, url in extracted_links:
+            # construct delimiter to use for splitting original text 
+            delimiter = f"[{alt_text}]({url})"
+
+            split_text = text.split(delimiter, maxsplit=1)
+
+            if (len(split_text) == 2):
+                plain_text = split_text[0]
+                if plain_text != "":
+                    new_nodes.append(TextNode(plain_text, TextType.PLAIN_TEXT))
+                text = split_text[1] 
+            else:
+                raise ValueError("Invalid markdown, image section not closed.")
+
+            new_nodes.append(TextNode(alt_text, TextType.LINK, url))
+        if text != "":
+            new_nodes.append(TextNode(text, TextType.PLAIN_TEXT))
+
+    return new_nodes
         
 '''
     Takes raw Markdown text and returns a list of tuples representing images found in the text.

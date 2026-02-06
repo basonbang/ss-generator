@@ -14,15 +14,6 @@ import re
     Returns:
         new_nodes (list[TextNode])
             List of TextNode objects created after splitting old nodes by the delimiter
-    Example:
-        node = TextNode("This is text with a `code block` word", TextType.TEXT)
-        new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
-        # new_nodes will contain:
-            [
-                TextNode("This is text with a ", TextType.TEXT),  
-                TextNode("code block", TextType.CODE),
-                TextNode(" word", TextType.TEXT)
-            ]
 '''
 def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: TextType):
     #TODO: Support nested inline elements (e.g., bold text inside code blocks)
@@ -153,6 +144,25 @@ def split_nodes_link(old_nodes: list[TextNode]):
             new_nodes.append(TextNode(text, TextType.PLAIN_TEXT))
 
     return new_nodes
+'''
+    Converts a raw Markdown string into a list of TextNode objects, applying appropriate splits
+    Args:
+        text (str)
+            REQUIRED - Raw Markdown text to convert into TextNode objects
+    Returns:
+        list[TextNode]
+            List of TextNode objects created from the raw Markdown string
+'''
+def text_to_textnodes(text):
+    # Convert raw text to single TextNode object
+    nodes = [TextNode(text, TextType.PLAIN_TEXT)]
+    
+    nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD_TEXT)
+    nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC_TEXT)
+    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    return nodes
         
 '''
     Takes raw Markdown text and returns a list of tuples representing images found in the text.

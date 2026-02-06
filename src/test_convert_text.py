@@ -111,6 +111,25 @@ class TestConvertText(unittest.TestCase):
         self.assertEqual([node], new_image_nodes)
         self.assertEqual([node], new_link_nodes)
 
+    def test_text_to_textnodes(self):
+        text = "This is **text** with an _italic_ word and a `code block` and an " \
+        "![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+
+        new_nodes = text_to_textnodes(text)
+        expected_nodes = [
+            TextNode("This is ", TextType.PLAIN_TEXT),
+            TextNode("text", TextType.BOLD_TEXT),
+            TextNode(" with an ", TextType.PLAIN_TEXT),
+            TextNode("italic", TextType.ITALIC_TEXT),
+            TextNode(" word and a ", TextType.PLAIN_TEXT),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and an ", TextType.PLAIN_TEXT),
+            TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode(" and a ", TextType.PLAIN_TEXT),
+            TextNode("link", TextType.LINK, "https://boot.dev")
+        ]
+        self.assertListEqual(expected_nodes, new_nodes)
+
 
 class TestExtractMarkdownImagesAndLinks(unittest.TestCase):
     def test_extract_markdown_images(self):

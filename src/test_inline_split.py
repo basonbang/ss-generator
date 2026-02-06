@@ -1,9 +1,9 @@
 import unittest 
 
 from textnode import TextNode, TextType 
-from convert_text import *
+from inline_split import *
 
-class TestConvertText(unittest.TestCase):
+class TestInlineSplit(unittest.TestCase):
     def test_split_nodes_delimiter_simple(self):
         node = TextNode("This is text with a `code block` word", TextType.PLAIN_TEXT)
         new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)

@@ -76,9 +76,7 @@ def markdown_to_html_node(markdown: str):
     # Get all separate blocks of Markdown from full doc
     blocks = markdown_to_blocks(markdown)
 
-    # Create parent node with tag "div"
-    parent = ParentNode(tag="div", children=[])
-    parent_children = []
+    children = []
 
     for block in blocks:
         # Determine block type
@@ -89,25 +87,25 @@ def markdown_to_html_node(markdown: str):
             case BlockType.PARAGRAPH:
                 block_text = block.replace("\n", " ")
                 paragraph_node = ParentNode(tag="p", children=text_to_children(block_text))
-                parent_children.append(paragraph_node)
+                children.append(paragraph_node)
             case BlockType.HEADING:
                 heading_node = heading_to_htmlnode(block)
-                parent_children.append(heading_node)
+                children.append(heading_node)
             case BlockType.CODE:
                 code_block = code_block_to_htmlnode(block)
-                parent_children.append(code_block)
+                children.append(code_block)
             case BlockType.QUOTE:
-                quote_node = LeafNode(tag="blockquote", value=block[1:].strip())
-                parent_children.append(quote_node)
+                block_text = block[1:].strip() # Removes leading > and extra whitespace char
+                quote_node = ParentNode(tag="blockquote", children=text_to_children(block_text))
+                children.append(quote_node)
             case BlockType.UNORDERED_LIST:
                 ul_node = unordered_list_to_htmlnode(block)
-                parent_children.append(ul_node)
+                children.append(ul_node)
             case BlockType.ORDERED_LIST:
                 ol_node = ordered_list_to_htmlnode(block)
-                parent_children.append(ol_node)
+                children.append(ol_node)
     
-    parent.children = parent_children
-    return parent
+    return ParentNode(tag="div", children=children)
 
 '''
     Converts a block representing an unordered list into corresponding HTMLNode with 
@@ -127,12 +125,13 @@ def unordered_list_to_htmlnode(block: str):
     parent_children = []
 
     for item in items:
-        # Remove "-" marker from beginning of list item
-        if item.startswith("- "):
-            item = item[2:]
-        else:
+        # Not a valid unordered list item if it doesn't start with "- "
+        if not item.startswith("- "):
             raise ValueError("Invalid unordered list item, must start with '- '")
         
+        # Remove the "- " from the beginning of list item text
+        item = item[2:]
+    
         # Create list item HTML node
         list_item_node = ParentNode(tag="li", children=text_to_children(item))
 

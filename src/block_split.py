@@ -179,8 +179,9 @@ def ordered_list_to_htmlnode(block: str):
 def code_block_to_htmlnode(block: str):
     # Create parent node with tag "pre"
     parent = ParentNode(tag="pre", children=[])
-    # Remove backtick markers from the block text (newlines preserved)
-    code_text = block.strip("`")
+    # Remove backtick markers and leading/trailing newlines from the block text
+    lines = block.split("\n")
+    code_text = "\n".join(lines[1:-1])
     # Create child node with tag "code" and value representing the code text
     code_node = TextNode(code_text, TextType.CODE).text_node_to_html_node()
     parent.children = [code_node]

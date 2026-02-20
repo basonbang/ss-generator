@@ -19,18 +19,18 @@ def copy_directory(src: str, dest: str):
     
     # Create destination directory
     mkdir(dest)
-    print(f"Created destination directory {dest}")
+    # print(f"Created destination directory {dest}")
 
     for direntry in listdir(src):
         src_entry = path.join(src, direntry)
         dest_entry = path.join(dest, direntry)
 
-        print(f"Copying {src_entry} to {dest_entry}")
+        # print(f"Copying {src_entry} to {dest_entry}")
 
         if path.isfile(src_entry):
-            print(f"{src_entry} is a file, copying...\n")
+            # print(f"{src_entry} is a file, copying...\n")
             copy(src_entry, dest_entry)
         else:
-            print(f"{src_entry} is a directory, copying recursively...\n")
+            # print(f"{src_entry} is a directory, copying recursively...\n")
             copy_directory(src_entry, dest_entry)
     

@@ -24,10 +24,11 @@ def extract_title(markdown: str):
         from_path (str): REQUIRED - Path to source MD file to convert into HTML page
         template_path (str): REQUIRED - Path to HTML template file
         dest_path (str): REQUIRED - Path to destination HTML file
+        basepath (str): OPTIONAL - Base path to use for generated links in HTML page, default is "/"
     Returns:
         None - Should write page to dest_path
 '''
-def generate_page(from_path: str, template_path: str, dest_path: str): 
+def generate_page(from_path: str, template_path: str, dest_path: str, basepath: str = "/"): 
     print(f"Generating page from {from_path} to {dest_path} using template {template_path}")
 
     markdown, template = None, None
@@ -47,6 +48,10 @@ def generate_page(from_path: str, template_path: str, dest_path: str):
     template = template.replace("{{ Title }}", title)
     template = template.replace("{{ Content }}", html_string)
 
+    # Replace links that start from root with the basepath+link
+    template = template.replace(f'href="/', f'href="{basepath}')
+    template = template.replace(f'src="/', f'src="{basepath}')
+
     # Write the new HTML page to dest_path 
     dest_dir_path = os.path.dirname(dest_path)
     if not os.path.exists(dest_dir_path):
@@ -61,11 +66,12 @@ def generate_page(from_path: str, template_path: str, dest_path: str):
         dir_path_content (str): REQUIRED - Path to source directory containing MD files to convert into HTML pages
         template_path (str): REQUIRED - Path to HTML template file
         dest_dir (str): REQUIRED - Path to destination directory to write generated HTML pages to
+        basepath (str): OPTIONAL - Base path to use for generated links in HTML pages, default is "/"
     Returns:
         None - Should write pages to dest_dir
 
 '''
-def generate_pages_recursive(dir_path_content: str, template_path: str, dest_dir: str):
+def generate_pages_recursive(dir_path_content: str, template_path: str, dest_dir: str, basepath: str = "/"):
 
     # Crawl every entry within content directory 
     for direntry in os.listdir(dir_path_content):
@@ -77,7 +83,7 @@ def generate_pages_recursive(dir_path_content: str, template_path: str, dest_dir
         # If entry is a markdown file, generate it's HTML page
         if os.path.isfile(content_entry) and content_entry.endswith(".md"):
             dest_entry = dest_entry[:-3] + ".html"
-            generate_page(content_entry, template_path, dest_entry)
+            generate_page(content_entry, template_path, dest_entry, basepath)
         else:
-            generate_pages_recursive(content_entry, template_path, dest_entry)
+            generate_pages_recursive(content_entry, template_path, dest_entry, basepath)
 
